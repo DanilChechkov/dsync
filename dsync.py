@@ -1,3 +1,4 @@
+import sys
 import os
 import hashlib
 import time
@@ -5,8 +6,8 @@ from shutil import copyfile, rmtree
 from datetime import date, datetime
 
 
-def file_hash(file):                        #Finding MD5 file hash
-    BUF_SIZE = 65536
+def file_hash(file):                        #Функция для нахождения MD5-хэша 
+    BUF_SIZE = 65536                        
     md5 = hashlib.md5()
     while True:
         data = file.read(BUF_SIZE) 
@@ -82,9 +83,14 @@ def sync_dir(source_dir, clone_dir, log, timer=10):
                 os.path.join(source_dir +base_folder[file][0],base_folder[file][1]),
                 os.path.join(clone_dir +base_folder[file][0],base_folder[file][1])),file=open(log, "a"))
     time.sleep(timer)
-    sync_dir('/home/danil/maindir','/home/danil/clonedir','/home/danil/logfile')
+    sync_dir(source_dir,clone_dir,log,timer)
     #NEED COMMENTS
 
 
 
-sync_dir('/home/danil/maindir','/home/danil/clonedir','/home/danil/logfile')
+#sync_dir('/home/danil/maindir','/home/danil/clonedir','/home/danil/logfile')
+method_name = sys.argv[1]
+
+print(sys.argv)
+
+getattr(sys.modules[__name__], method_name)(sys.argv[2],sys.argv[3],sys.argv[4],int(sys.argv[5]))
