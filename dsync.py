@@ -72,6 +72,8 @@ def sync_dir(source_dir, clone_dir):
                 (os.path.join(source_dir +base_folder[file][0],base_folder[file][1]),
                 os.path.join(clone_dir +base_folder[file][0],base_folder[file][1])))
             #NEEDS LOG
+    #NEEDS TIMER
+    #NEED COMMENTS
 
 
 
