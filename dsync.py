@@ -1,6 +1,8 @@
 import os
 import hashlib
+import time
 from shutil import copyfile, rmtree
+from datetime import date, datetime
 
 
 def file_hash(file):                        #Finding MD5 file hash
@@ -26,55 +28,63 @@ def fill_with_files(directory):
             
     return tmp,tmp2
 
-def sync_dir(source_dir, clone_dir):
+def sync_dir(source_dir, clone_dir, log, timer=10):
+    if not os.path.exists(log): 
+        with open(log, 'w') as f:
+            f.write('Log file started\n')
+    
     base_folder,base_dirs = fill_with_files(source_dir)
     point_folder,point_dirs = fill_with_files(clone_dir)
     #STEP 1 - creating folders
     for folder in base_dirs.keys():
         if folder not in point_dirs.keys():
             os.makedirs(clone_dir + folder)
-            print('Folders created: %s'%(clone_dir + folder))
-            #NEEDS LOG
+            print('[%s]:\tПуть создан: %s'%(datetime.now(),(clone_dir + folder)))
+            print('[%s]:\tПуть создан: %s'%(datetime.now(),(clone_dir + folder)),file=open(log, "a"))
     
     for file in point_folder.keys():
         #STEP 2 - remove files which have different hashes
         if not file in base_folder.keys():
-            #os.remove(clone_dir.join(point_folder[file]))
             os.remove(os.path.join(clone_dir +point_folder[file][0],point_folder[file][1]))
-            print('File removed: %s'%os.path.join(clone_dir +point_folder[file][0],point_folder[file][1]))
-            #NEEDS LOG
+            print('[%s]:\tФайл удален: %s'%(datetime.now(),os.path.join(clone_dir +point_folder[file][0],point_folder[file][1])))
+            print('[%s]:\tФайл удален: %s'%(datetime.now(),os.path.join(clone_dir +point_folder[file][0],point_folder[file][1])),file=open(log, "a"))
             continue
         #STEP 3 - check file locations and names
         if base_folder[file] != point_folder[file]:
             if not os.path.exists(clone_dir + base_folder[file][0]):
                 os.makedirs(clone_dir + base_folder[file][0])
-                print('Folders created2: %s'%(clone_dir + base_folder[file][0]))
-                #NEEDS LOG
+                print('[%s]:\tПуть создан: %s'%(datetime.now(),(clone_dir + base_folder[file][0])))
+                print('[%s]:\tПуть создан: %s'%(datetime.now(),(clone_dir + base_folder[file][0])),file=open(log, "a"))
             os.rename(os.path.join(clone_dir+point_folder[file][0],point_folder[file][1]),
                         os.path.join(clone_dir+base_folder[file][0],base_folder[file][1]))
-            print('File was moved and renamed from %s to %s'%\
-                        (os.path.join(clone_dir+point_folder[file][0],point_folder[file][1]),
+            print('[%s]:\tФайл был перемещен и переименован из %s в %s'%(datetime.now(),\
+                        os.path.join(clone_dir+point_folder[file][0],point_folder[file][1]),
                         os.path.join(clone_dir+base_folder[file][0],base_folder[file][1])))
-            #NEEDS LOG
+            print('[%s]:\tФайл был перемещен и переименован из %s в %s'%(datetime.now(),\
+                        os.path.join(clone_dir+point_folder[file][0],point_folder[file][1]),
+                        os.path.join(clone_dir+base_folder[file][0],base_folder[file][1])),file=open(log, "a"))
             continue
     #STEP 3 - deleting folders
     for folder in point_dirs.keys():
         if folder not in base_dirs.keys() and os.path.exists(clone_dir+folder):
             rmtree(clone_dir+folder)
-            print('Папки удалены: %s'%(clone_dir+folder))
-            #NEEDS LOG
+            print('[%s]:\tПапки удалены: %s'%(datetime.now(),(clone_dir+folder)))
+            print('[%s]:\tПапки удалены: %s'%(datetime.now(),(clone_dir+folder)),file=open(log, "a"))
     #STEP 4 - copy files
     for file in base_folder.keys():
         if not file in point_folder.keys():
             copyfile(os.path.join(source_dir +base_folder[file][0],base_folder[file][1]),
                     os.path.join(clone_dir +base_folder[file][0],base_folder[file][1]))
-            print('Файл был скопирован из %s в %s'%\
-                (os.path.join(source_dir +base_folder[file][0],base_folder[file][1]),
+            print('[%s]:\tФайл был скопирован из %s в %s'%(datetime.now(),\
+                os.path.join(source_dir +base_folder[file][0],base_folder[file][1]),
                 os.path.join(clone_dir +base_folder[file][0],base_folder[file][1])))
-            #NEEDS LOG
-    #NEEDS TIMER
+            print('[%s]:\tФайл был скопирован из %s в %s'%(datetime.now(),\
+                os.path.join(source_dir +base_folder[file][0],base_folder[file][1]),
+                os.path.join(clone_dir +base_folder[file][0],base_folder[file][1])),file=open(log, "a"))
+    time.sleep(timer)
+    sync_dir('/home/danil/maindir','/home/danil/clonedir','/home/danil/logfile')
     #NEED COMMENTS
 
 
 
-sync_dir('/home/danil/maindir','/home/danil/clonedir')
+sync_dir('/home/danil/maindir','/home/danil/clonedir','/home/danil/logfile')
